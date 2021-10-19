@@ -25,6 +25,8 @@ export const loadHTML = async (app: IInternalAppInfo) => {
       app.unmount = lifeCycle?.unmount;
     }
   });
+
+  return app;
 };
 
 const runJS = (value: string, app: IInternalAppInfo) => {

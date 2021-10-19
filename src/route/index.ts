@@ -1,4 +1,6 @@
 import { EventType } from "../declare/index";
+import { getAppListStatus } from "../utils";
+import { runBoostrap, runBeforeLoad, runMounted, runUnmounted } from "../lifeCycle";
 
 const capturedListeners: Record<EventType, Function[]> = {
   hashchange: [],
@@ -14,4 +16,63 @@ const originalReplace = window.history.replaceState;
 
 let historyEvent: PopStateEvent | null = null;
 
-export const reroute = (url: string) => {};
+let lastUrl: string | null = null;
+
+const handleUrlChange = () => {
+  reroute(location.href);
+};
+
+const hasListeners = (name: EventType, fn: Function) => {
+  return capturedListeners[name].filter((listener) => listener === fn).length;
+};
+
+
+export const reroute = (url: string) => {
+  if (url !== lastUrl) {
+    // url 发生了变化
+    const { actives, unmounts } = getAppListStatus();
+    Promise.all(
+      unmounts
+        .map(async (app) => {
+          await runUnmounted(app);
+        })
+        .concat(
+          actives.map(async (app) => {
+            await runBeforeLoad(app);
+            await runBoostrap(app);
+            await runMounted(app);
+          })
+        )
+    ).then(() => {
+      callCapturedListeners();
+    });
+  }
+
+  lastUrl = url || location.href;
+};
+
+export function callCapturedListeners() {
+  if (historyEvent) {
+    Object.keys(capturedListeners).forEach((eventName) => {
+      const listeners = capturedListeners[eventName as EventType];
+      if (listeners.length) {
+        listeners.forEach((listener) => {
+          // @ts-ignore
+          listener.call(this, historyEvent);
+        });
+      }
+    });
+    historyEvent = null;
+  }
+}
+
+export function cleanCapturedListeners() {
+  capturedListeners["hashchange"] = [];
+  capturedListeners["popstate"] = [];
+}
+
+export const 
+
+
+
+
