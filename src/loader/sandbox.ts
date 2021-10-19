@@ -19,6 +19,7 @@ export class ProxySandbox {
             return proxy;
         }
         if (!window.hasOwnProperty.call(target, p) && window.hasOwnProperty(p)) {
+          // @ts-ignore
           const value = window[p];
           if (typeof value === "function") {
             return value.bind(window);

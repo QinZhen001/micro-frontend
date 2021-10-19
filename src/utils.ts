@@ -38,8 +38,8 @@ export const fetchResource = async (url: string, appName: string) => {
     return res;
   }
   const data = await fetch(url).then(async (res) => await res.text());
-  console.log("data", data);
-  debugger;
+  // console.log("data", data);
+  // debugger;
   setCache(appName, url, data);
   return data;
 };

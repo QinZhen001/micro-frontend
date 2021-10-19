@@ -26,7 +26,6 @@ const hasListeners = (name: EventType, fn: Function) => {
   return capturedListeners[name].filter((listener) => listener === fn).length;
 };
 
-
 export const reroute = (url: string) => {
   if (url !== lastUrl) {
     // url 发生了变化
@@ -71,8 +70,48 @@ export function cleanCapturedListeners() {
   capturedListeners["popstate"] = [];
 }
 
-export const 
+export const hijackRoute = () => {
+  // https://github.com/forthealllight/blog/issues/37
+  // history 上的 pushState 和 replaceState 不会触发popstate事件 
+  // 所以我们要劫持他们
+  window.history.pushState = (...args) => {
+    console.log("pushState", ...args);
+    originalPush.apply(window.history, args);
+    historyEvent = new PopStateEvent("popstate");
+    // @ts-ignore
+    args[2] && reroute(args[2]);
+  };
+  window.history.replaceState = (...args) => {
+    console.log("replaceState", ...args);
+    originalReplace.apply(window.history, args);
+    historyEvent = new PopStateEvent("popstate");
+    // @ts-ignore
+    args[2] && reroute(args[2]);
+  };
 
+  window.addEventListener("hashchange", () => {
+    console.log("hashchange");
+    handleUrlChange();
+  });
+  window.addEventListener("popstate", () => {
+    console.log("popstate");
+    handleUrlChange();
+  });
 
+  window.addEventListener = hijackEventListener(window.addEventListener);
+  window.removeEventListener = hijackEventListener(window.removeEventListener);
+};
 
-
+const hijackEventListener = (func: Function): any => {
+  return function (name: string, fn: Function) {
+    if (name === "hashchange" || name === "popstate") {
+      if (!hasListeners(name, fn)) {
+        capturedListeners[name].push(fn);
+        return;
+      } else {
+        capturedListeners[name] = capturedListeners[name].filter((listener) => listener !== fn);
+      }
+    }
+    return func.apply(window, arguments);
+  };
+};

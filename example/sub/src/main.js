@@ -1,20 +1,23 @@
-import Vue from 'vue'
-import App from './App.vue'
+import Vue from "vue";
+import App from "./App.vue";
 
-Vue.config.productionTip = false
+Vue.config.productionTip = false;
 
-let app
+let app;
 
 export const bootstrap = () => {
+  console.log("sub app bootstrap");
   app = new Vue({
     render: (h) => h(App),
-  })
-}
+  });
+};
 
 export const mount = () => {
-  app.$mount('#app')
-}
+  console.log("sub app mount");
+  app.$mount("#app");
+};
 
 export const unmount = () => {
-  app.$destroy()
-}
+  console.log("sub app unmount");
+  app.$destroy();
+};
