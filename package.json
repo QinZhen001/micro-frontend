@@ -6,19 +6,17 @@
   "author": "qinzhen <qz519189636@qq.com>",
   "license": "MIT",
   "scripts": {
-    "test": "jest",
-    "clean": "rm -rf ./dist",
-    "build": "tsc -w",
-    "prepare": "yarn build",
-    "check-types": "tsc --noEmit",
-    "check-formatting": "prettier --check '**/*.{js,json,md,tsx,ts}'"
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
   },
   "devDependencies": {
-    "@types/requestidlecallback": "^0.3.4",
-    "typescript": "^4.3.5"
+    "vite": "^3.0.0",
+    "@vitejs/plugin-react": "^3.0.1"
   },
   "dependencies": {
-    "import-html-entry": "^1.11.1",
-    "path-to-regexp": "^6.2.0"
+    "react": "^18.0.2",
+    "react-dom": "^18.0.2",
+    "react-router-dom": "^6.2.1"
   }
 }
